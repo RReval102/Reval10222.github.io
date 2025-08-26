@@ -61,6 +61,11 @@
         html {
             scroll-behavior: smooth;
         }
+
+        /* Небольшая оптимизация для анимаций (избежание мерцания) */
+        [data-aos], .feature-icon, .neon-glow, .container img {
+            will-change: transform, opacity;
+        }
     </style>
 </head>
 <body class="overflow-x-hidden">
@@ -82,13 +87,13 @@
     <main class="pt-24">
         <section class="relative text-center py-20 md:py-32 animated-gradient-bg overflow-hidden">
              <!-- Фоновые светящиеся элементы -->
-            <div class="absolute top-0 left-0 w-64 h-64 bg-[#39FF14] rounded-full opacity-10 blur-3xl animate-pulse"></div>
-            <div class="absolute bottom-0 right-0 w-64 h-64 bg-blue-500 rounded-full opacity-10 blur-3xl animate-pulse animation-delay-4000"></div>
+            <div class="absolute top-0 left-0 w-64 h-64 bg-[#39FF14] rounded-full opacity-10 blur-3xl animate-pulse blob-1"></div>
+            <div class="absolute bottom-0 right-0 w-64 h-64 bg-blue-500 rounded-full opacity-10 blur-3xl animate-pulse animation-delay-4000 blob-2"></div>
 
             <div class="container mx-auto px-6 relative z-10">
-                <h2 class="text-4xl md:text-6xl font-black text-white mb-4" data-aos="fade-down">Откройте свой город заново</h2>
-                <p class="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-8" data-aos="fade-down" data-aos-delay="200">City Assistant — ваш персональный гид по городской жизни. Транспорт, события, услуги — всё под рукой.</p>
-                <div class="flex justify-center space-x-4 mb-12" data-aos="fade-up" data-aos-delay="400">
+                <h2 class="text-4xl md:text-6xl font-black text-white mb-4 hero-title" data-aos="fade-down">Откройте свой город заново</h2>
+                <p class="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-8 hero-sub" data-aos="fade-down" data-aos-delay="200">City Assistant — ваш персональный гид по городской жизни. Транспорт, события, услуги — всё под рукой.</p>
+                <div class="flex justify-center space-x-4 mb-12 hero-ctas" data-aos="fade-up" data-aos-delay="400">
                     <a href="#" class="bg-[#39FF14] text-black font-bold py-3 px-8 rounded-lg transition duration-300 btn-primary flex items-center space-x-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                         <span>Google Play</span>
@@ -104,7 +109,7 @@
                    <div class="absolute -inset-1 bg-gradient-to-r from-[#39FF14] to-blue-500 rounded-2xl blur opacity-25"></div>
                     <img src="https://sun9-21.userapi.com/s/v1/ig2/VEKAbwAAU8JFyMQH7fQdDIVS80iVtpvcyDSdTlFkmE5DL4pAukakWLPdXdeZbGszVKgyJh0R_6tJclb7Ko3IZp46.jpg?quality=95&as=32x48,48x72,72x108,108x162,160x240,240x360,360x540,480x720,540x810,640x960,720x1080,1024x1536&from=bu&cs=1024x0" 
                          alt="Интерфейс приложения City Assistant" 
-                         class="relative w-full rounded-2xl shadow-2xl"
+                         class="relative w-full rounded-2xl shadow-2xl hero-image"
                          style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
                 </div>
             </div>
@@ -120,7 +125,7 @@
 
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
                     <!-- Карточка 1 -->
-                    <div class="bg-gray-800/50 p-8 rounded-2xl border border-gray-700/50 transition duration-500 hover:border-[#39FF14]/50 hover:scale-105" data-aos="fade-up">
+                    <div class="bg-gray-800/50 p-8 rounded-2xl border border-gray-700/50 transition duration-500 hover:border-[#39FF14]/50 hover:scale-105 feature-card" data-aos="fade-up">
                         <div class="mb-6 bg-gray-900 inline-block p-4 rounded-xl">
                             <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                         </div>
@@ -129,7 +134,7 @@
                     </div>
 
                     <!-- Карточка 2 -->
-                    <div class="bg-gray-800/50 p-8 rounded-2xl border border-gray-700/50 transition duration-500 hover:border-[#39FF14]/50 hover:scale-105" data-aos="fade-up" data-aos-delay="150">
+                    <div class="bg-gray-800/50 p-8 rounded-2xl border border-gray-700/50 transition duration-500 hover:border-[#39FF14]/50 hover:scale-105 feature-card" data-aos="fade-up" data-aos-delay="150">
                         <div class="mb-6 bg-gray-900 inline-block p-4 rounded-xl">
                            <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                         </div>
@@ -138,7 +143,7 @@
                     </div>
                     
                     <!-- Карточка 3 -->
-                    <div class="bg-gray-800/50 p-8 rounded-2xl border border-gray-700/50 transition duration-500 hover:border-[#39FF14]/50 hover:scale-105" data-aos="fade-up" data-aos-delay="300">
+                    <div class="bg-gray-800/50 p-8 rounded-2xl border border-gray-700/50 transition duration-500 hover:border-[#39FF14]/50 hover:scale-105 feature-card" data-aos="fade-up" data-aos-delay="300">
                         <div class="mb-6 bg-gray-900 inline-block p-4 rounded-xl">
                            <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H7a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                         </div>
@@ -300,12 +305,139 @@
 
     <!-- Подключение скрипта AOS -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- Подключение anime.js (CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
     <script>
         // Инициализация AOS
         AOS.init({
             duration: 800, // длительность анимации
             once: true, // анимация проигрывается один раз
             offset: 100, // отступ от низа экрана для старта анимации
+        });
+
+        // Анимации через anime.js — запускаем после полной загрузки
+        window.addEventListener('load', function () {
+            // HERO timeline
+            const heroTl = anime.timeline({
+                easing: 'easeOutExpo',
+                duration: 800
+            });
+
+            heroTl
+                .add({
+                    targets: '.hero-title',
+                    translateY: [40, 0],
+                    opacity: [0, 1],
+                    delay: 200
+                })
+                .add({
+                    targets: '.hero-sub',
+                    translateY: [20, 0],
+                    opacity: [0, 1]
+                }, '-=600')
+                .add({
+                    targets: '.hero-ctas a',
+                    scale: [0.92, 1],
+                    opacity: [0, 1],
+                    delay: anime.stagger(120)
+                }, '-=600')
+                .add({
+                    targets: '.hero-image',
+                    scale: [0.98, 1],
+                    opacity: [0.85, 1],
+                    duration: 1000
+                }, '-=700');
+
+            // Плавающие фоновые шары
+            anime({
+                targets: '.blob-1, .blob-2',
+                translateY: [0, -30],
+                translateX: [0, 30],
+                loop: true,
+                direction: 'alternate',
+                easing: 'easeInOutSine',
+                duration: 5000
+            });
+
+            // Появление карточек возможностей
+            anime({
+                targets: '#features .grid > .feature-card',
+                translateY: [40, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(150),
+                duration: 800,
+                easing: 'easeOutCubic'
+            });
+
+            // Подготовка и анимация "рисования" SVG (stroke-dashoffset)
+            document.querySelectorAll('.feature-icon').forEach(svg => {
+                svg.querySelectorAll('path').forEach(path => {
+                    try {
+                        const len = path.getTotalLength();
+                        path.setAttribute('stroke-dasharray', len);
+                        path.setAttribute('stroke-dashoffset', len);
+                    } catch (e) {
+                        // некритично, некоторые элементы могут не поддерживать getTotalLength
+                    }
+                });
+            });
+
+            anime({
+                targets: '.feature-icon path',
+                strokeDashoffset: [anime.setDashoffset, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(120),
+                duration: 900,
+                easing: 'easeOutCirc'
+            });
+
+            // Hover-анимация для карточек (дополнительно к CSS hover)
+            document.querySelectorAll('#features .grid > .feature-card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    anime.remove(card);
+                    anime({
+                        targets: card,
+                        scale: 1.03,
+                        duration: 260,
+                        easing: 'easeOutCubic'
+                    });
+                });
+                card.addEventListener('mouseleave', () => {
+                    anime.remove(card);
+                    anime({
+                        targets: card,
+                        scale: 1,
+                        duration: 260,
+                        easing: 'easeOutCubic'
+                    });
+                });
+            });
+
+            // Пульс неоновых кругов (шаги)
+            anime({
+                targets: '.neon-glow',
+                boxShadow: [
+                    '0 0 5px #39FF14, 0 0 15px #39FF14, 0 0 25px #39FF14',
+                    '0 0 12px #39FF14, 0 0 24px #39FF14, 0 0 40px #39FF14'
+                ],
+                duration: 1500,
+                loop: true,
+                direction: 'alternate',
+                easing: 'easeInOutSine'
+            });
+
+            // Лёгкое "плавание" для всех картинок (делает интерфейс живым)
+            anime({
+                targets: '.container img.rounded-2xl.shadow-2xl',
+                translateY: [0, 8],
+                loop: true,
+                direction: 'alternate',
+                easing: 'easeInOutSine',
+                duration: 4000,
+                delay: anime.stagger(200)
+            });
         });
     </script>
 
