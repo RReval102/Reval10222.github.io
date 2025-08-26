@@ -5,117 +5,190 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>City Assistant — Ваш город в одном приложении</title>
     
-    <!-- Подключение Tailwind CSS для стилей -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Подключение библиотеки для анимаций при скролле (AOS) -->
+    <!-- AOS -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
-    <!-- Подключение шрифта Inter -->
+
+    <!-- Inter font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
 
     <style>
-        /* Глобальные стили и кастомные классы */
+        :root{
+            --neon: #39FF14;
+            --bg: #0f1113;
+            --muted: #9aa0a6;
+        }
+
+        html,body{height:100%;}
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #121212;
+            background-color: var(--bg);
             color: #E0E0E0;
-            overflow-x: hidden; /* Предотвращение горизонтального скролла */
+            overflow-x: hidden;
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
         }
 
-        /* Класс для неонового свечения */
-        .neon-glow {
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 0 5px #39FF14, 0 0 15px #39FF14, 0 0 25px #39FF14;
-        }
-        
-        .btn-primary:hover {
-             box-shadow: 0 0 8px #39FF14, 0 0 20px #39FF14, 0 0 35px #39FF14;
-             transform: translateY(-3px);
-        }
-
-        /* Анимированный градиент для фона секций */
-        .animated-gradient-bg {
-            background: linear-gradient(270deg, #121212, #1a1a1a, #121212);
-            background-size: 600% 600%;
-            animation: gradientAnimation 16s ease infinite;
+        /* ===== Cursor & Trail ===== */
+        .cursor, .cursor-aura {
+            position: fixed;
+            pointer-events: none;
+            left: 0; top: 0;
+            transform: translate(-50%, -50%);
+            z-index: 99999;
+            mix-blend-mode: screen;
         }
 
-        @keyframes gradientAnimation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        /* Стили для иконок */
-        .feature-icon {
-            width: 64px;
-            height: 64px;
-            stroke-width: 1.5;
-            color: #39FF14;
-        }
-        
-        /* Плавный скролл */
-        html {
-            scroll-behavior: smooth;
+        .cursor{
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 0 6px rgba(255,255,255,0.9);
+            transition: width .18s ease, height .18s ease, background .18s ease, opacity .2s;
+            will-change: transform;
         }
 
-        /* Небольшая оптимизация для анимаций (избежание мерцания) */
-        [data-aos], .feature-icon, .neon-glow, .container img {
+        .cursor-aura{
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(57,255,20,0.18), rgba(57,255,20,0.08) 30%, transparent 50%);
+            filter: blur(18px);
+            opacity: .8;
+            transition: opacity .25s ease, transform .25s ease;
+        }
+
+        .cursor-trail-dot{
+            position: fixed; left:0; top:0; pointer-events:none; width:8px; height:8px; border-radius:50%;
+            background: rgba(57,255,20,0.9); transform: translate(-50%,-50%); z-index:99998; mix-blend-mode: screen;
             will-change: transform, opacity;
         }
+
+        .cursor-hover{
+            transform: translate(-50%, -50%) scale(2.8) !important;
+            background: var(--neon) !important;
+            opacity: 0.95 !important;
+        }
+
+        /* ===== Neon / gradient / helpers ===== */
+        .neon-glow { transition: all .3s ease-in-out; box-shadow: 0 0 5px var(--neon), 0 0 15px var(--neon), 0 0 25px var(--neon); }
+        .btn-primary:hover { box-shadow: 0 0 10px var(--neon), 0 0 30px var(--neon); transform: translateY(-4px); }
+
+        .animated-gradient-bg { background: linear-gradient(270deg, #0f1113, #141416, #0f1113); background-size: 600% 600%; animation: gradientAnimation 16s ease infinite; }
+        @keyframes gradientAnimation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* Animated title shimmer */
+        .shimmer {
+            background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.28), rgba(255,255,255,0.06));
+            background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: shimmer 3.6s linear infinite;
+        }
+        @keyframes shimmer { 0%{background-position:0% 0%}100%{background-position:200% 0%} }
+
+        /* Card tilt helpers */
+        .tilt { transform-style: preserve-3d; transition: transform .28s cubic-bezier(.2,.8,.2,1); will-change: transform; }
+        .tilt-inner { transform: translateZ(20px); }
+
+        /* Soft glassy cards */
+        .glass { background: rgba(255,255,255,0.02); border: 1px solid rgba(57,255,20,0.06); backdrop-filter: blur(6px); }
+
+        /* subtle underline animation for nav */
+        nav a { position:relative; padding-bottom:6px; }
+        nav a::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:2px; background: linear-gradient(90deg,var(--neon),#5ee0ff); transform: scaleX(0); transform-origin:left; transition: transform .28s ease; }
+        nav a:hover::after{ transform: scaleX(1); }
+
+        /* Feature icon stroke animation — fallback */
+        .feature-icon path{ stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: draw 1s ease forwards; }
+        @keyframes draw{ to { stroke-dashoffset: 0; } }
+
+        /* Parallax layers */
+        .parallax { will-change: transform; }
+
+        /* reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+        }
+
+        /* small responsive tweaks */
+        @media (max-width: 640px) {
+            .cursor-aura { display:none; }
+            .cursor-trail-dot { display:none; }
+        }
+
     </style>
 </head>
 <body class="overflow-x-hidden">
 
-    <!-- ===== НАВИГАЦИЯ ===== -->
+    <!-- Custom cursor elements -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-aura" id="cursorAura"></div>
+
+    <!-- trailing dots container (we programmatically add dots here) -->
+    <div id="trail"></div>
+
+    <!-- ===== NAV ===== -->
     <header class="fixed top-0 left-0 right-0 z-50 bg-black bg-opacity-30 backdrop-blur-md">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-white">City<span style="color: #39FF14;">Assistant</span></h1>
+            <h1 class="text-2xl font-bold text-white">City<span style="color: var(--neon);">Assistant</span></h1>
             <nav class="hidden md:flex space-x-8">
                 <a href="#features" class="text-gray-300 hover:text-white transition duration-300">Возможности</a>
                 <a href="#how-it-works" class="text-gray-300 hover:text-white transition duration-300">Как это работает</a>
                 <a href="#download" class="text-gray-300 hover:text-white transition duration-300">Скачать</a>
             </nav>
-            <a href="#download" class="hidden md:block bg-[#39FF14] text-black font-bold py-2 px-6 rounded-lg transition duration-300 btn-primary">Начать</a>
-        </div>
-    </header>
+            <a href="#download" class="hidden md:block bg-[var(--neon)] text-black font-bold py-2 px-6 rounded-lg transition duration-300 btn-primary">Начать</a>
+                            <button id="hamburgerBtn" aria-label="Открыть меню" class="md:hidden ml-4 p-2 rounded-md bg-gray-900/40 border border-[var(--neon)]/10 cursor-interact">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--neon)]">
+                            <path d="M3 6h18"></path>
+                            <path d="M3 12h18"></path>
+                            <path d="M3 18h18"></path>
+                        </svg>
+                    </button>
+                </div>
+                <!-- Mobile menu (hidden by default) -->
+                <nav id="mobileNav" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm">
+                    <div class="text-center space-y-6">
+                        <a href="#features" class="block text-2xl font-bold text-white mobile-link">Возможности</a>
+                        <a href="#how-it-works" class="block text-2xl font-bold text-white mobile-link">Как это работает</a>
+                        <a href="#download" class="block text-2xl font-bold text-white mobile-link">Скачать</a>
+                        <button id="mobileClose" class="mt-6 bg-[var(--neon)] text-black px-6 py-2 rounded-lg font-bold">Закрыть</button>
+                    </div>
+                </nav>
+            </header>
 
-    <!-- ===== ГЛАВНЫЙ ЭКРАН (HERO) ===== -->
+    <!-- ===== HERO ===== -->
     <main class="pt-24">
-        <section class="relative text-center py-20 md:py-32 animated-gradient-bg overflow-hidden">
-             <!-- Фоновые светящиеся элементы -->
-            <div class="absolute top-0 left-0 w-64 h-64 bg-[#39FF14] rounded-full opacity-10 blur-3xl animate-pulse blob-1"></div>
-            <div class="absolute bottom-0 right-0 w-64 h-64 bg-blue-500 rounded-full opacity-10 blur-3xl animate-pulse animation-delay-4000 blob-2"></div>
+        <section class="relative text-center py-20 md:py-32 animated-gradient-bg overflow-hidden" aria-label="hero">
+            <!-- Parallax background blobs that will respond to cursor -->
+            <div class="absolute top-10 left-6 w-72 h-72 bg-[var(--neon)] rounded-full opacity-8 blur-3xl parallax" id="blob1" style="opacity:.08;"></div>
+            <div class="absolute bottom-6 right-6 w-96 h-96 bg-blue-500 rounded-full opacity-8 blur-3xl parallax" id="blob2" style="opacity:.06;"></div>
 
             <div class="container mx-auto px-6 relative z-10">
-                <h2 class="text-4xl md:text-6xl font-black text-white mb-4 hero-title" data-aos="fade-down">Откройте свой город заново</h2>
+                <h2 class="text-4xl md:text-6xl font-black text-white mb-4 hero-title shimmer" data-aos="fade-down">Откройте свой город заново</h2>
                 <p class="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto mb-8 hero-sub" data-aos="fade-down" data-aos-delay="200">City Assistant — ваш персональный гид по городской жизни. Транспорт, события, услуги — всё под рукой.</p>
                 <div class="flex justify-center space-x-4 mb-12 hero-ctas" data-aos="fade-up" data-aos-delay="400">
-                    <a href="#" class="bg-[#39FF14] text-black font-bold py-3 px-8 rounded-lg transition duration-300 btn-primary flex items-center space-x-2">
+                    <a href="#" class="bg-[var(--neon)] text-black font-bold py-3 px-8 rounded-lg transition duration-300 btn-primary flex items-center space-x-2 cursor-interact">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                         <span>Google Play</span>
                     </a>
-                    <a href="#" class="bg-gray-800 text-white font-bold py-3 px-8 rounded-lg transition duration-300 hover:bg-gray-700 flex items-center space-x-2">
+                    <a href="#" class="bg-gray-800 text-white font-bold py-3 px-8 rounded-lg transition duration-300 hover:bg-gray-700 flex items-center space-x-2 cursor-interact">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 2.3a1 1 0 0 1 1.6 1.2L11.5 10H16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-4.5l2.8 6.5a1 1 0 0 1-1.6 1.2L2.6 4.3a1 1 0 0 1 1.6-1.2L14.7 2.3z"></path></svg>
                         <span>App Store</span>
                     </a>
                 </div>
-                
-                <!-- Изображение приложения -->
+
                 <div class="relative max-w-4xl mx-auto" data-aos="zoom-in-up" data-aos-delay="500">
-                   <div class="absolute -inset-1 bg-gradient-to-r from-[#39FF14] to-blue-500 rounded-2xl blur opacity-25"></div>
+                    <div class="absolute -inset-1 bg-gradient-to-r from-[var(--neon)] to-blue-500 rounded-2xl blur opacity-25"></div>
                     <img src="https://sun9-78.userapi.com/s/v1/ig2/ObmfztR84HGcEoraGHw1hYNHMilyCbdHoOjbQGL0w4l30gMoT7Tp41YRSkIHyyY0g-3bmA1KrLZatRf6QLw8bp1A.jpg?quality=95&as=32x49,48x74,72x111,108x167,160x247,240x371,360x556,480x742,540x835,640x989,720x1113,913x1411&from=bu&cs=913x0" 
                          alt="Интерфейс приложения City Assistant" 
-                         class="relative w-full rounded-2xl shadow-2xl hero-image"
-                         style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+                         class="relative w-full rounded-2xl shadow-2xl hero-image transform-gpu" style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
                 </div>
             </div>
         </section>
 
-        <!-- ===== СЕКЦИЯ ВОЗМОЖНОСТЕЙ (FEATURES) ===== -->
+        <!-- ===== FEATURES ===== -->
         <section id="features" class="py-20 md:py-28">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-16">
@@ -124,27 +197,27 @@
                 </div>
 
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-                    <!-- Карточка 1 -->
-                    <div class="bg-gray-800/50 p-8 rounded-2xl border border-gray-700/50 transition duration-500 hover:border-[#39FF14]/50 hover:scale-105 feature-card" data-aos="fade-up">
-                        <div class="mb-6 bg-gray-900 inline-block p-4 rounded-xl">
+                    <!-- Card 1 -->
+                    <div class="bg-gray-800/50 p-8 rounded-2xl border border-gray-700/50 transition duration-500 hover:border-[var(--neon)]/50 hover:scale-105 feature-card tilt glass cursor-interact" data-aos="fade-up">
+                        <div class="mb-6 bg-gray-900 inline-block p-4 rounded-xl tilt-inner">
                             <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                         </div>
                         <h4 class="text-2xl font-bold text-white mb-3">Транспорт и Карты</h4>
                         <p class="text-gray-400">Отслеживайте автобусы, стройте маршруты и никогда не опаздывайте.</p>
                     </div>
 
-                    <!-- Карточка 2 -->
-                    <div class="bg-gray-800/50 p-8 rounded-2xl border border-gray-700/50 transition duration-500 hover:border-[#39FF14]/50 hover:scale-105 feature-card" data-aos="fade-up" data-aos-delay="150">
-                        <div class="mb-6 bg-gray-900 inline-block p-4 rounded-xl">
+                    <!-- Card 2 -->
+                    <div class="bg-gray-800/50 p-8 rounded-2xl border border-gray-700/50 transition duration-500 hover:border-[var(--neon)]/50 hover:scale-105 feature-card tilt glass cursor-interact" data-aos="fade-up" data-aos-delay="150">
+                        <div class="mb-6 bg-gray-900 inline-block p-4 rounded-xl tilt-inner">
                            <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                         </div>
                         <h4 class="text-2xl font-bold text-white mb-3">События и Новости</h4>
                         <p class="text-gray-400">Узнавайте о концертах, выставках и важных городских новостях первыми.</p>
                     </div>
-                    
-                    <!-- Карточка 3 -->
-                    <div class="bg-gray-800/50 p-8 rounded-2xl border border-gray-700/50 transition duration-500 hover:border-[#39FF14]/50 hover:scale-105 feature-card" data-aos="fade-up" data-aos-delay="300">
-                        <div class="mb-6 bg-gray-900 inline-block p-4 rounded-xl">
+
+                    <!-- Card 3 -->
+                    <div class="bg-gray-800/50 p-8 rounded-2xl border border-gray-700/50 transition duration-500 hover:border-[var(--neon)]/50 hover:scale-105 feature-card tilt glass cursor-interact" data-aos="fade-up" data-aos-delay="300">
+                        <div class="mb-6 bg-gray-900 inline-block p-4 rounded-xl tilt-inner">
                            <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H7a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                         </div>
                         <h4 class="text-2xl font-bold text-white mb-3">Платежи и Знакомства</h4>
@@ -154,17 +227,21 @@
             </div>
         </section>
 
-        <!-- ===== НОВЫЙ БЛОК: ДЕТАЛЬНОЕ ОПИСАНИЕ ФУНКЦИЙ ===== -->
-        <section class="py-20 md:py-28 space-y-20 md:space-y-32">
+        <!-- More detailed features (kept largely the same) -->
+        <!-- ПЕРЕРАБОТАННЫЕ ПОДРОБНЫЕ ФУНКЦИИ (Variant B: текст слева/справа) -->
+
             <!-- Функция 1: Карты -->
             <div class="container mx-auto px-6">
                 <div class="flex flex-col md:flex-row items-center gap-12" data-aos="fade-right">
+                    <!-- картинка слева -->
                     <div class="md:w-1/2">
-                        <img src="https://placehold.co/600x450/1a1a1a/39FF14?text=Интерактивная+карта" alt="[Изображение интерактивной карты]" class="rounded-2xl shadow-2xl w-full">
+                        <img src="https://placehold.co/600x450/1a1a1a/39FF14?text=Интерактивная+карта" alt="Интерактивная карта" class="rounded-2xl shadow-2xl w-full transform-gpu hover:scale-[1.02] transition-transform duration-400">
                     </div>
-                    <div class="md:w-1/2">
+
+                    <!-- текст справа (вертикально центрирован) -->
+                    <div class="md:w-1/2 flex flex-col justify-center">
                         <div class="mb-4 inline-flex items-center gap-3 bg-gray-800/50 px-4 py-2 rounded-full border border-gray-700/50">
-                            <svg class="w-6 h-6 text-[#39FF14]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 16.382V5.618a1 1 0 00-1.447-.894L15 7m-6 3l6-3m0 0l-6-4m6 4l6 3" /></svg>
+                            <svg class="w-6 h-6 text-[var(--neon)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 16.382V5.618a1 1 0 00-1.447-.894L15 7m-6 3l6-3m0 0l-6-4m6 4l6 3" /></svg>
                             <span class="font-bold text-white">Карты и Навигация</span>
                         </div>
                         <h3 class="text-3xl font-bold text-white mb-4">Город как на ладони</h3>
@@ -172,15 +249,19 @@
                     </div>
                 </div>
             </div>
+
             <!-- Функция 2: Афиша -->
             <div class="container mx-auto px-6">
                 <div class="flex flex-col md:flex-row-reverse items-center gap-12" data-aos="fade-left">
+                    <!-- картинка справа -->
                     <div class="md:w-1/2">
-                        <img src="https://placehold.co/600x450/1a1a1a/39FF14?text=Афиша+событий" alt="[Изображение афиши событий]" class="rounded-2xl shadow-2xl w-full">
+                        <img src="https://placehold.co/600x450/1a1a1a/39FF14?text=Афиша+событий" alt="Афиша событий" class="rounded-2xl shadow-2xl w-full transform-gpu hover:scale-[1.02] transition-transform duration-400">
                     </div>
-                    <div class="md:w-1/2">
+
+                    <!-- текст слева -->
+                    <div class="md:w-1/2 flex flex-col justify-center">
                         <div class="mb-4 inline-flex items-center gap-3 bg-gray-800/50 px-4 py-2 rounded-full border border-gray-700/50">
-                            <svg class="w-6 h-6 text-[#39FF14]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>
+                            <svg class="w-6 h-6 text-[var(--neon)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>
                             <span class="font-bold text-white">Афиша Событий</span>
                         </div>
                         <h3 class="text-3xl font-bold text-white mb-4">Будьте в центре событий</h3>
@@ -188,15 +269,19 @@
                     </div>
                 </div>
             </div>
+
             <!-- Функция 3: Новости -->
             <div class="container mx-auto px-6">
                 <div class="flex flex-col md:flex-row items-center gap-12" data-aos="fade-right">
+                    <!-- картинка слева -->
                     <div class="md:w-1/2">
-                        <img src="https://placehold.co/600x450/1a1a1a/39FF14?text=Лента+новостей" alt="[Изображение ленты новостей]" class="rounded-2xl shadow-2xl w-full">
+                        <img src="https://placehold.co/600x450/1a1a1a/39FF14?text=Лента+новостей" alt="Лента новостей" class="rounded-2xl shadow-2xl w-full transform-gpu hover:scale-[1.02] transition-transform duration-400">
                     </div>
-                    <div class="md:w-1/2">
+
+                    <!-- текст справа -->
+                    <div class="md:w-1/2 flex flex-col justify-center">
                         <div class="mb-4 inline-flex items-center gap-3 bg-gray-800/50 px-4 py-2 rounded-full border border-gray-700/50">
-                           <svg class="w-6 h-6 text-[#39FF14]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3h3m-3 4h3m-3 4h3m-3 4h3" /></svg>
+                           <svg class="w-6 h-6 text-[var(--neon)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3h3m-3 4h3m-3 4h3m-3 4h3" /></svg>
                             <span class="font-bold text-white">Новости Города</span>
                         </div>
                         <h3 class="text-3xl font-bold text-white mb-4">Вся важная информация</h3>
@@ -204,15 +289,19 @@
                     </div>
                 </div>
             </div>
+
             <!-- Функция 4: Оплата счетов -->
             <div class="container mx-auto px-6">
                 <div class="flex flex-col md:flex-row-reverse items-center gap-12" data-aos="fade-left">
+                    <!-- картинка справа -->
                     <div class="md:w-1/2">
-                        <img src="https://placehold.co/600x450/1a1a1a/39FF14?text=Оплата+счетов" alt="[Изображение экрана оплаты счетов]" class="rounded-2xl shadow-2xl w-full">
+                        <img src="https://placehold.co/600x450/1a1a1a/39FF14?text=Оплата+счетов" alt="Оплата счетов" class="rounded-2xl shadow-2xl w-full transform-gpu hover:scale-[1.02] transition-transform duration-400">
                     </div>
-                    <div class="md:w-1/2">
+
+                    <!-- текст слева -->
+                    <div class="md:w-1/2 flex flex-col justify-center">
                         <div class="mb-4 inline-flex items-center gap-3 bg-gray-800/50 px-4 py-2 rounded-full border border-gray-700/50">
-                            <svg class="w-6 h-6 text-[#39FF14]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H7a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                            <svg class="w-6 h-6 text-[var(--neon)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H7a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                             <span class="font-bold text-white">Оплата Счетов</span>
                         </div>
                         <h3 class="text-3xl font-bold text-white mb-4">Управляйте финансами легко</h3>
@@ -220,15 +309,19 @@
                     </div>
                 </div>
             </div>
+
             <!-- Функция 5: Знакомства -->
             <div class="container mx-auto px-6">
                 <div class="flex flex-col md:flex-row items-center gap-12" data-aos="fade-right">
+                    <!-- картинка слева -->
                     <div class="md:w-1/2">
-                        <img src="https://placehold.co/600x450/1a1a1a/39FF14?text=Знакомства+рядом" alt="[Изображение интерфейса знакомств]" class="rounded-2xl shadow-2xl w-full">
+                        <img src="https://placehold.co/600x450/1a1a1a/39FF14?text=Знакомства+рядом" alt="Знакомства рядом" class="rounded-2xl shadow-2xl w-full transform-gpu hover:scale-[1.02] transition-transform duration-400">
                     </div>
-                    <div class="md:w-1/2">
+
+                    <!-- текст справа -->
+                    <div class="md:w-1/2 flex flex-col justify-center">
                         <div class="mb-4 inline-flex items-center gap-3 bg-gray-800/50 px-4 py-2 rounded-full border border-gray-700/50">
-                           <svg class="w-6 h-6 text-[#39FF14]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.125-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.125-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                           <svg class="w-6 h-6 text-[var(--neon)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.125-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.125-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                             <span class="font-bold text-white">Знакомства поблизости</span>
                         </div>
                         <h3 class="text-3xl font-bold text-white mb-4">Находите своих людей</h3>
@@ -236,10 +329,8 @@
                     </div>
                 </div>
             </div>
-        </section>
 
-
-        <!-- ===== СЕКЦИЯ "КАК ЭТО РАБОТАЕТ" ===== -->
+        <!-- HOW IT WORKS -->
         <section id="how-it-works" class="py-20 md:py-28 animated-gradient-bg">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-16">
@@ -248,27 +339,23 @@
                 </div>
                 
                 <div class="relative flex flex-col md:flex-row justify-between items-center space-y-12 md:space-y-0 md:space-x-8">
-                    <!-- Декоративная линия -->
                     <div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gray-700"></div>
-                    <div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-[#39FF14] to-blue-500 opacity-50"></div>
+                    <div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-[var(--neon)] to-blue-500 opacity-50"></div>
 
-                    <!-- Шаг 1 -->
                     <div class="relative text-center z-10" data-aos="fade-right">
-                        <div class="w-24 h-24 mx-auto mb-4 flex items-center justify-center bg-gray-800 border-2 border-[#39FF14] rounded-full text-4xl font-bold text-[#39FF14] shadow-lg neon-glow">1</div>
+                        <div class="w-24 h-24 mx-auto mb-4 flex items-center justify-center bg-gray-800 border-2 border-[var(--neon)] rounded-full text-4xl font-bold text-[var(--neon)] shadow-lg neon-glow">1</div>
                         <h4 class="text-xl font-bold text-white">Скачайте</h4>
                         <p class="text-gray-400 max-w-xs">Загрузите приложение из App Store или Google Play.</p>
                     </div>
                     
-                    <!-- Шаг 2 -->
                     <div class="relative text-center z-10" data-aos="fade-up">
-                        <div class="w-24 h-24 mx-auto mb-4 flex items-center justify-center bg-gray-800 border-2 border-[#39FF14] rounded-full text-4xl font-bold text-[#39FF14] shadow-lg neon-glow">2</div>
+                        <div class="w-24 h-24 mx-auto mb-4 flex items-center justify-center bg-gray-800 border-2 border-[var(--neon)] rounded-full text-4xl font-bold text-[var(--neon)] shadow-lg neon-glow">2</div>
                         <h4 class="text-xl font-bold text-white">Настройте</h4>
                         <p class="text-gray-400 max-w-xs">Выберите свои интересы, чтобы получать персональные рекомендации.</p>
                     </div>
 
-                    <!-- Шаг 3 -->
                     <div class="relative text-center z-10" data-aos="fade-left">
-                        <div class="w-24 h-24 mx-auto mb-4 flex items-center justify-center bg-gray-800 border-2 border-[#39FF14] rounded-full text-4xl font-bold text-[#39FF14] shadow-lg neon-glow">3</div>
+                        <div class="w-24 h-24 mx-auto mb-4 flex items-center justify-center bg-gray-800 border-2 border-[var(--neon)] rounded-full text-4xl font-bold text-[var(--neon)] shadow-lg neon-glow">3</div>
                         <h4 class="text-xl font-bold text-white">Исследуйте</h4>
                         <p class="text-gray-400 max-w-xs">Наслаждайтесь всеми возможностями города в вашем смартфоне.</p>
                     </div>
@@ -276,26 +363,27 @@
             </div>
         </section>
 
-        <!-- ===== СЕКЦИЯ СКАЧИВАНИЯ (DOWNLOAD/CTA) ===== -->
+        <!-- DOWNLOAD -->
         <section id="download" class="py-20 md:py-32">
             <div class="container mx-auto px-6 text-center">
                 <h3 class="text-4xl md:text-5xl font-bold text-white" data-aos="zoom-in">Готовы изменить свой город?</h3>
                 <p class="text-lg text-gray-400 mt-4 mb-8 max-w-2xl mx-auto" data-aos="zoom-in" data-aos-delay="100">Присоединяйтесь к тысячам пользователей, которые уже открыли для себя City Assistant.</p>
                 <div class="flex justify-center space-x-4" data-aos="zoom-in" data-aos-delay="200">
-                     <a href="#" class="bg-[#39FF14] text-black font-bold py-3 px-8 rounded-lg transition duration-300 btn-primary flex items-center space-x-2">
+                     <a href="#" class="bg-[var(--neon)] text-black font-bold py-3 px-8 rounded-lg transition duration-300 btn-primary flex items-center space-x-2 cursor-interact">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                         <span>Google Play</span>
                     </a>
-                    <a href="#" class="bg-gray-800 text-white font-bold py-3 px-8 rounded-lg transition duration-300 hover:bg-gray-700 flex items-center space-x-2">
+                    <a href="#" class="bg-gray-800 text-white font-bold py-3 px-8 rounded-lg transition duration-300 hover:bg-gray-700 flex items-center space-x-2 cursor-interact">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 2.3a1 1 0 0 1 1.6 1.2L11.5 10H16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-4.5l2.8 6.5a1 1 0 0 1-1.6 1.2L2.6 4.3a1 1 0 0 1 1.6-1.2L14.7 2.3z"></path></svg>
                         <span>App Store</span>
                     </a>
                 </div>
             </div>
         </section>
+
     </main>
 
-    <!-- ===== ПОДВАЛ (FOOTER) ===== -->
+    <!-- FOOTER -->
     <footer class="bg-black py-8">
         <div class="container mx-auto px-6 text-center text-gray-500">
             <p>&copy; 2025 City Assistant. Все права защищены.</p>
@@ -303,144 +391,289 @@
         </div>
     </footer>
 
-    <!-- Подключение скрипта AOS -->
+    <!-- AOS & anime.js -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
-    <!-- Подключение anime.js (CDN) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 
     <script>
-        // Инициализация AOS
-        AOS.init({
-            duration: 800, // длительность анимации
-            once: true, // анимация проигрывается один раз
-            offset: 100, // отступ от низа экрана для старта анимации
-        });
+        // ===== Init AOS =====
+        AOS.init({ duration: 800, once: true, offset: 100 });
 
-        // Анимации через anime.js — запускаем после полной загрузки
-        window.addEventListener('load', function () {
-            // HERO timeline
-            const heroTl = anime.timeline({
-                easing: 'easeOutExpo',
-                duration: 800
+        // ===== Reduced motion guard =====
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // ===== Cursor logic =====
+        (function(){
+            if(reduced) return; // don't animate if user prefers reduced motion
+
+            const cursor = document.getElementById('cursor');
+            const aura = document.getElementById('cursorAura');
+            const trailContainer = document.getElementById('trail');
+            let mouse = { x: window.innerWidth/2, y: window.innerHeight/2 };
+            let pos = { x: mouse.x, y: mouse.y };
+
+            // create trailing dots
+            const DOTS = 10;
+            const dots = [];
+            for(let i=0;i<DOTS;i++){
+                const d = document.createElement('div');
+                d.className = 'cursor-trail-dot';
+                d.style.opacity = String(1 - i/DOTS);
+                trailContainer.appendChild(d);
+                dots.push({el:d,x:mouse.x,y:mouse.y});
+            }
+
+            // lerp helper
+            function lerp(a,b,n){return (1-n)*a + n*b}
+
+            // update loop
+            function raf(){
+                pos.x = lerp(pos.x, mouse.x, 0.22);
+                pos.y = lerp(pos.y, mouse.y, 0.22);
+
+                cursor.style.transform = `translate(${pos.x}px, ${pos.y}px) translate(-50%,-50%)`;
+                aura.style.transform = `translate(${pos.x}px, ${pos.y}px) translate(-50%,-50%) scale(1)`;
+
+                let x = pos.x, y = pos.y;
+                for(let i=0;i<dots.length;i++){
+                    const d = dots[i];
+                    d.x = lerp(d.x, x, 0.34 - i*0.02);
+                    d.y = lerp(d.y, y, 0.34 - i*0.02);
+                    d.el.style.transform = `translate(${d.x}px, ${d.y}px)`;
+                    d.el.style.opacity = String(0.9 - i*0.07);
+                    x = d.x; y = d.y;
+                }
+                requestAnimationFrame(raf);
+            }
+            raf();
+
+            window.addEventListener('mousemove', (e)=>{ mouse.x = e.clientX; mouse.y = e.clientY; });
+            window.addEventListener('mousedown', ()=>{ cursor.classList.add('cursor-hover'); aura.style.transform += ' scale(.9)'; });
+            window.addEventListener('mouseup', ()=>{ cursor.classList.remove('cursor-hover'); });
+
+            // interactive hover states for elements with .cursor-interact
+            document.querySelectorAll('.cursor-interact').forEach(el=>{
+                el.addEventListener('mouseenter', ()=>{ cursor.classList.add('cursor-hover'); aura.style.opacity = '1'; });
+                el.addEventListener('mouseleave', ()=>{ cursor.classList.remove('cursor-hover'); aura.style.opacity = '.8'; });
             });
 
-            heroTl
-                .add({
-                    targets: '.hero-title',
-                    translateY: [40, 0],
-                    opacity: [0, 1],
-                    delay: 200
-                })
-                .add({
-                    targets: '.hero-sub',
-                    translateY: [20, 0],
-                    opacity: [0, 1]
-                }, '-=600')
-                .add({
-                    targets: '.hero-ctas a',
-                    scale: [0.92, 1],
-                    opacity: [0, 1],
-                    delay: anime.stagger(120)
-                }, '-=600')
-                .add({
-                    targets: '.hero-image',
-                    scale: [0.98, 1],
-                    opacity: [0.85, 1],
-                    duration: 1000
-                }, '-=700');
-
-            // Плавающие фоновые шары
-            anime({
-                targets: '.blob-1, .blob-2',
-                translateY: [0, -30],
-                translateX: [0, 30],
-                loop: true,
-                direction: 'alternate',
-                easing: 'easeInOutSine',
-                duration: 5000
+            // hide cursor on touch devices
+            window.addEventListener('touchstart', ()=>{
+                cursor.style.display='none'; aura.style.display='none'; dots.forEach(d=>d.el.style.display='none');
             });
+        })();
 
-            // Появление карточек возможностей
-            anime({
-                targets: '#features .grid > .feature-card',
-                translateY: [40, 0],
-                opacity: [0, 1],
-                delay: anime.stagger(150),
-                duration: 800,
-                easing: 'easeOutCubic'
+        // ===== Parallax blobs that follow cursor (subtle) =====
+        (function(){
+            if(reduced) return;
+            const b1 = document.getElementById('blob1');
+            const b2 = document.getElementById('blob2');
+            let mx = window.innerWidth/2, my = window.innerHeight/2;
+            window.addEventListener('mousemove', e=>{ mx = e.clientX; my = e.clientY; });
+
+            function update(){
+                const rx = (mx - window.innerWidth/2) / (window.innerWidth/2);
+                const ry = (my - window.innerHeight/2) / (window.innerHeight/2);
+                // move blobs gently and rotate
+                b1.style.transform = `translate3d(${rx*20}px, ${ry*12}px, 0) scale(1.02) rotate(${rx*6}deg)`;
+                b2.style.transform = `translate3d(${rx*-28}px, ${ry*-18}px, 0) scale(1.04) rotate(${ry*8}deg)`;
+                requestAnimationFrame(update);
+            }
+            update();
+        })();
+
+        // ===== Tilt effect for cards =====
+        (function(){
+            if(reduced) return;
+            const tilts = document.querySelectorAll('.tilt');
+            tilts.forEach(card=>{
+                card.addEventListener('mousemove', (e)=>{
+                    const rect = card.getBoundingClientRect();
+                    const px = (e.clientX - rect.left) / rect.width; // 0..1
+                    const py = (e.clientY - rect.top) / rect.height; // 0..1
+                    const rx = (py - 0.5) * 10; // rotateX
+                    const ry = (px - 0.5) * -12; // rotateY
+                    card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) scale(1.02)`;
+                });
+                card.addEventListener('mouseleave', ()=>{ card.style.transform = ''; });
             });
+        })();
 
-            // Подготовка и анимация "рисования" SVG (stroke-dashoffset)
-            document.querySelectorAll('.feature-icon').forEach(svg => {
-                svg.querySelectorAll('path').forEach(path => {
-                    try {
-                        const len = path.getTotalLength();
-                        path.setAttribute('stroke-dasharray', len);
-                        path.setAttribute('stroke-dashoffset', len);
-                    } catch (e) {
-                        // некритично, некоторые элементы могут не поддерживать getTotalLength
-                    }
+        // ===== Scroll parallax for images and hero =====
+        (function(){
+            const parallaxEls = document.querySelectorAll('[data-parallax]');
+            if(parallaxEls.length === 0) return;
+            function onScroll(){
+                const scrolled = window.scrollY;
+                parallaxEls.forEach(el=>{
+                    const speed = parseFloat(el.getAttribute('data-parallax')) || 0.12;
+                    el.style.transform = `translateY(${scrolled*speed}px)`;
+                });
+            }
+            window.addEventListener('scroll', onScroll, { passive:true });
+            onScroll();
+        })();
+
+        // ===== small flourish: animate hero image tilt on mousemove (subtle) =====
+        (function(){
+            const heroImg = document.querySelector('.hero-image');
+            if(!heroImg || reduced) return;
+            window.addEventListener('mousemove', e=>{
+                const rect = heroImg.getBoundingClientRect();
+                const cx = rect.left + rect.width/2;
+                const cy = rect.top + rect.height/2;
+                const dx = (e.clientX - cx) / rect.width;
+                const dy = (e.clientY - cy) / rect.height;
+                heroImg.style.transform = `perspective(900px) translateZ(10px) rotateX(${dy*-3}deg) rotateY(${dx*4}deg)`;
+            });
+            window.addEventListener('mouseleave', ()=>{ heroImg.style.transform = ''; });
+        })();
+
+        // ===== small animation polish via anime.js for CTA micro-interactions =====
+        (function(){
+            if(reduced || !window.anime) return;
+            document.querySelectorAll('.btn-primary').forEach(btn=>{
+                btn.addEventListener('mouseenter', ()=>{
+                    anime.remove(btn);
+                    anime({ targets: btn, scale: 1.03, duration: 300, easing: 'spring(1, 80, 10, 0)'});
+                });
+                btn.addEventListener('mouseleave', ()=>{
+                    anime.remove(btn);
+                    anime({ targets: btn, scale: 1, duration: 350, easing: 'spring(1, 80, 10, 0)'});
                 });
             });
+        })();
 
-            anime({
-                targets: '.feature-icon path',
-                strokeDashoffset: [anime.setDashoffset, 0],
-                opacity: [0, 1],
-                delay: anime.stagger(120),
-                duration: 900,
-                easing: 'easeOutCirc'
-            });
+        // ===== Accessibility: show focus outline for keyboard users =====
+        (function(){
+            function handleFirstTab(e){
+                if(e.key === 'Tab'){
+                    document.documentElement.classList.add('user-is-tabbing');
+                    window.removeEventListener('keydown', handleFirstTab);
+                }
+            }
+            window.addEventListener('keydown', handleFirstTab);
+        })();
 
-            // Hover-анимация для карточек (дополнительно к CSS hover)
-            document.querySelectorAll('#features .grid > .feature-card').forEach(card => {
-                card.addEventListener('mouseenter', () => {
-                    anime.remove(card);
-                    anime({
-                        targets: card,
-                        scale: 1.03,
-                        duration: 260,
-                        easing: 'easeOutCubic'
-                    });
-                });
-                card.addEventListener('mouseleave', () => {
-                    anime.remove(card);
-                    anime({
-                        targets: card,
-                        scale: 1,
-                        duration: 260,
-                        easing: 'easeOutCubic'
-                    });
-                });
-            });
-
-            // Пульс неоновых кругов (шаги)
-            anime({
-                targets: '.neon-glow',
-                boxShadow: [
-                    '0 0 5px #39FF14, 0 0 15px #39FF14, 0 0 25px #39FF14',
-                    '0 0 12px #39FF14, 0 0 24px #39FF14, 0 0 40px #39FF14'
-                ],
-                duration: 1500,
-                loop: true,
-                direction: 'alternate',
-                easing: 'easeInOutSine'
-            });
-
-            // Лёгкое "плавание" для всех картинок (делает интерфейс живым)
-            anime({
-                targets: '.container img.rounded-2xl.shadow-2xl',
-                translateY: [0, 8],
-                loop: true,
-                direction: 'alternate',
-                easing: 'easeInOutSine',
-                duration: 4000,
-                delay: anime.stagger(200)
-            });
-        });
     </script>
 
+<!-- Additional anime-inspired scripts (menu, scroll animations) -->
+<script>
+(function(){
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if(typeof anime === 'undefined') return;
+
+    const hamburger = document.getElementById('hamburgerBtn');
+    const mobileNav = document.getElementById('mobileNav');
+    const mobileClose = document.getElementById('mobileClose');
+    const links = mobileNav ? mobileNav.querySelectorAll('.mobile-link') : [];
+
+    function openMenu(){
+        mobileNav.classList.remove('hidden');
+        anime.remove(mobileNav);
+        anime.timeline()
+            .add({targets: mobileNav, opacity: [0,1], duration: 360, easing: 'easeOutQuad'})
+            .add({targets: '.mobile-link', translateY: [30,0], opacity:[0,1], delay: anime.stagger(80), duration:420, easing:'spring(1,80,10,0)'}, '-=240');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeMenu(){
+        anime.timeline()
+            .add({targets: '.mobile-link', translateY: [0,20], opacity:[1,0], delay: anime.stagger(40, {from:'last'}), duration:180, easing:'easeInQuad'})
+            .add({targets: mobileNav, opacity: [1,0], duration: 300, easing: 'easeInQuad', complete: ()=>{
+                mobileNav.classList.add('hidden');
+                document.body.style.overflow = '';
+            }}, '-=120');
+    }
+    hamburger && hamburger.addEventListener('click', openMenu);
+    mobileClose && mobileClose.addEventListener('click', closeMenu);
+    links.forEach(l=> l.addEventListener('click', closeMenu));
+
+    // Header hide/show on scroll
+    let lastY = window.scrollY;
+    const headerEl = document.querySelector('header');
+    window.addEventListener('scroll', ()=>{
+        const y = window.scrollY;
+        if(Math.abs(y - lastY) < 10) return;
+        if(y > lastY && y > 120){
+            headerEl.style.transform = 'translateY(-110%)';
+        } else {
+            headerEl.style.transform = 'translateY(0)';
+        }
+        lastY = y;
+    }, {passive:true});
+
+    // Scroll-triggered animations using IntersectionObserver + anime.timeline
+    const observer = new IntersectionObserver((entries)=>{
+        entries.forEach(entry=>{
+            if(entry.isIntersecting){
+                const el = entry.target;
+                if(el.dataset.animated) return;
+                el.dataset.animated = '1';
+                const targets = el.querySelectorAll('.feature-card, .container img.rounded-2xl, .hero-ctas a');
+                if(targets.length){
+                    anime({
+                        targets: targets,
+                        translateY: [30,0],
+                        opacity: [0,1],
+                        duration: 800,
+                        delay: anime.stagger(80),
+                        easing: 'easeOutExpo'
+                    });
+                }
+            }
+        });
+    }, {threshold: 0.18});
+    document.querySelectorAll('section, .feature-card, .container img.rounded-2xl').forEach(el=> observer.observe(el));
+
+    // Smooth anchor scrolling with anime
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+        a.addEventListener('click', (e)=>{
+            const href = a.getAttribute('href');
+            if(href.length > 1 && document.querySelector(href)){
+                e.preventDefault();
+                const target = document.querySelector(href);
+                const top = target.getBoundingClientRect().top + window.scrollY - 72;
+                anime({
+                    targets: [document.documentElement, document.scrollingElement],
+                    scrollTop: top,
+                    duration: 720,
+                    easing: 'easeInOutCubic'
+                });
+            }
+        });
+    });
+
+    // Decorative hero micro-animation: swirling orbs (using anime's loop/timeline)
+    anime({
+        targets: '.blob-1',
+        translateX: [0, 18],
+        translateY: [0, -28],
+        duration: 3800,
+        direction: 'alternate',
+        loop: true,
+        easing: 'easeInOutSine'
+    });
+    anime({
+        targets: '.blob-2',
+        translateX: [0, -24],
+        translateY: [0, 22],
+        duration: 4200,
+        direction: 'alternate',
+        loop: true,
+        easing: 'easeInOutSine'
+    });
+
+    // small stagger for features on load
+    anime({
+        targets: '#features .feature-card',
+        translateY: [40,0],
+        opacity: [0,1],
+        delay: anime.stagger(120, {start:300}),
+        duration: 900,
+        easing: 'easeOutExpo'
+    });
+
+})();
+</script>
 </body>
 </html>
-
